@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroMetric — Cognitive Lab</title>
+
+  <!-- Fonte Inter (a mesma do design original) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Estilos do site -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Chart.js (gráficos da tela de resultados) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+
+  <!-- Todo o JavaScript do site fica neste arquivo -->
+  <script src="script.js" defer></script>
+</head>
+<body>
+
+  <!-- ===================================================== -->
+  <!-- CABEÇALHO (logo + cronômetros)                         -->
+  <!-- ===================================================== -->
+  <header class="cabecalho">
+    <div class="cabecalho-conteudo">
+      <div class="marca">
+        <img src="imagens/logo.png" alt="Logo NeuroMetric" class="marca-logo">
+        <div>
+          <div class="marca-nome">NeuroMetric</div>
+          <div class="marca-sub">Cognitive Lab</div>
+        </div>
+      </div>
+
+      <!-- Os cronômetros só aparecem durante o teste -->
+      <div class="cronometros escondido" id="cronometros">
+        <div class="cronometro">
+          <svg class="icone-relogio azul" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <div>
+            <span class="cronometro-rotulo">Esta questão</span>
+            <span class="cronometro-valor" id="tempo-questao">00:00</span>
+          </div>
+        </div>
+        <div class="cronometro">
+          <svg class="icone-relogio roxo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div>
+            <span class="cronometro-rotulo">Tempo total</span>
+            <span class="cronometro-valor" id="tempo-total">00:00:00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================== -->
+  <!-- ETAPA 1 — PÁGINA INICIAL                               -->
+  <!-- ===================================================== -->
+  <main class="tela tela-inicial" id="tela-inicial">
+    <div class="selo"><span class="ponto"></span>AVALIAÇÃO COGNITIVA • 34 QUESTÕES</div>
+
+    <h1 class="titulo-inicial">
+      Inicie o teste para descobrir o seu
+      <span class="titulo-qi">QI</span>
+    </h1>
+
+    <button type="button" class="botao-iniciar" id="botao-iniciar">
+      Iniciar Quiz <span class="seta">→</span>
+    </button>
+
+    <div class="numeros-inicio">
+      <div><strong>34</strong><span>QUESTÕES</span></div>
+      <div><strong>7 min</strong><span>TEMPO ESTIMADO</span></div>
+    </div>
+
+    <div class="cartao-aviso">
+      <div class="cartao-aviso-titulo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        Antes de começar
+      </div>
+      <ul>
+        <li>Responda às 34 questões com atenção.</li>
+        <li>O tempo de resposta de cada questão será registrado.</li>
+        <li>Procure realizar o teste em um ambiente sem interrupções.</li>
+      </ul>
+    </div>
+
+    <h2 class="habilidades-titulo">8 HABILIDADES AVALIADAS</h2>
+    <div class="habilidades">
+      <span>Sequências numéricas</span><span>Padrões e matrizes</span><span>Analogias</span>
+      <span>Lógica dedutiva</span><span>Raciocínio espacial</span><span>Classificação</span>
+      <span>Raciocínio quantitativo</span><span>Desafios mistos</span>
+    </div>
+  </main>
+
+  <!-- ===================================================== -->
+  <!-- ETAPA 2 — MODELO ÚNICO DE QUESTÃO                      -->
+  <!-- (o JavaScript troca o conteúdo a cada questão)         -->
+  <!-- ===================================================== -->
+  <main class="tela tela-quiz escondido" id="tela-quiz">
+
+    <!-- Barra de progresso -->
+    <div class="progresso">
+      <div class="progresso-topo">
+        <div>
+          <span class="etiqueta-questao" id="numero-questao">Questão 1 de 34</span>
+          <span class="categoria-questao" id="categoria-questao">• Categoria</span>
+        </div>
+        <span class="porcentagem" id="porcentagem">2,94% concluído</span>
+      </div>
+      <div class="barra"><div class="barra-preenchida" id="barra-preenchida"></div></div>
+    </div>
+
+    <!-- Cartão central da pergunta -->
+    <div class="cartao-questao" id="cartao-questao">
+      <div class="cartao-questao-topo">
+        <span class="item-avaliacao"><span class="ponto"></span>Item de Avaliação Psicométrica</span>
+        <span class="id-questao" id="id-questao">ID: NM-01</span>
+      </div>
+
+      <h2 class="enunciado" id="enunciado">Enunciado</h2>
+      <p class="descricao escondido" id="descricao"></p>
+
+      <!-- Imagem principal (fica oculta quando a questão não tem imagem) -->
+      <div class="area-imagem escondido" id="area-imagem">
+        <button type="button" class="botao-zoom" id="botao-zoom" aria-label="Ampliar imagem" title="Ampliar imagem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+        </button>
+        <img id="imagem-questao" src="" alt="Imagem da questão">
+      </div>
+
+      <!-- Elementos extras: sequências, grade numérica ou cartões de afirmações -->
+      <div class="area-extra escondido" id="area-extra"></div>
+
+      <div class="rotulo-alternativas" id="rotulo-alternativas">Alternativas de resposta</div>
+
+      <!-- As 5 alternativas são criadas pelo JavaScript aqui dentro -->
+      <div class="alternativas" id="alternativas"></div>
+    </div>
+
+    <!-- Botão de continuidade -->
+    <div class="area-botao">
+      <button type="button" class="botao-principal" id="botao-proxima" disabled>
+        <span id="texto-botao-proxima">Próxima questão</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+      </button>
+      <span class="legenda">Respostas salvas automaticamente</span>
+    </div>
+
+    <div class="rodape-quiz">
+      <span>NeuroMetric Cognitive Lab • Protocolo de Avaliação Psicométrica</span>
+      <span id="questoes-restantes">Questões restantes: 33</span>
+    </div>
+  </main>
+
+  <!-- ===================================================== -->
+  <!-- TELA INTERMEDIÁRIA DE MEMORIZAÇÃO (sobreposição)       -->
+  <!-- ===================================================== -->
+  <div class="sobreposicao escondido" id="tela-memorizacao">
+    <div class="cartao-memorizacao">
+      <div class="selo-memorizacao">ETAPA DE RETENÇÃO • MEMÓRIA DE TRABALHO</div>
+      <h1 id="titulo-memorizacao">Memorize esta sequência numérica</h1>
+      <p>Esta informação será solicitada em uma etapa posterior do teste. Observe atentamente e fixe cada posição.</p>
+      <div class="itens-memorizacao" id="itens-memorizacao"></div>
+      <button type="button" class="botao-principal" id="botao-memorizacao">
+        <span>Entendido, continuar</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================================================== -->
+  <!-- ETAPA 3 — RESULTADOS                                   -->
+  <!-- ===================================================== -->
+  <main class="tela tela-resultados escondido" id="tela-resultados">
+    <div class="resultado-topo">
+      <div>
+        <div class="resultado-selo">● RESULTADO DA AVALIAÇÃO COGNITIVA</div>
+        <h1>Seu resultado</h1>
+        <p class="resultado-data" id="resultado-data">Concluído em —</p>
+      </div>
+      <button type="button" class="botao-reiniciar" id="botao-reiniciar">↻ Reiniciar teste</button>
+    </div>
+
+    <!-- Cartão de aproveitamento -->
+    <div class="cartao cartao-destaque">
+      <div class="rotulo-pequeno">APROVEITAMENTO</div>
+      <div class="valor-grande"><span id="res-aproveitamento">0,0%</span></div>
+      <div class="barra"><div class="barra-preenchida" id="barra-aproveitamento"></div></div>
+      <p class="texto-pequeno">Percentual de acertos nas 34 questões. Este valor <strong>não</strong> é um QI psicométrico validado.</p>
+    </div>
+
+    <!-- Cartão do QI estimado (fórmula na seção 14 do script.js) -->
+    <div class="cartao cartao-destaque">
+      <div class="rotulo-pequeno">QI ESTIMADO</div>
+      <div class="valor-grande"><span id="res-qi">—</span></div>
+      <p class="texto-pequeno" id="res-qi-detalhe">Pontuação: —</p>
+      <p class="texto-pequeno">Estimativa educacional calculada com acertos, erros e rapidez. Não substitui um teste de QI aplicado por psicólogo.</p>
+    </div>
+
+    <!-- Indicadores -->
+    <div class="indicadores">
+      <div class="cartao indicador"><div class="rotulo-pequeno">TOTAL DE QUESTÕES</div><div class="valor" id="res-total">34</div><div class="texto-pequeno">bateria completa</div></div>
+      <div class="cartao indicador"><div class="rotulo-pequeno">ACERTOS</div><div class="valor" id="res-acertos">0</div><div class="texto-pequeno azul-texto">respostas corretas</div></div>
+      <div class="cartao indicador"><div class="rotulo-pequeno">ERROS</div><div class="valor" id="res-erros">0</div><div class="texto-pequeno vermelho-texto">respostas incorretas</div></div>
+      <div class="cartao indicador"><div class="rotulo-pequeno">TEMPO TOTAL</div><div class="valor" id="res-tempo-total">0s</div><div class="texto-pequeno">do início ao fim</div></div>
+      <div class="cartao indicador"><div class="rotulo-pequeno">TEMPO MÉDIO</div><div class="valor" id="res-tempo-medio">0s</div><div class="texto-pequeno">por questão</div></div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="graficos">
+      <div class="cartao">
+        <div class="rotulo-pequeno">GRÁFICO 1</div>
+        <h3>Acertos e erros</h3>
+        <div class="caixa-grafico pequeno"><canvas id="grafico-pizza"></canvas></div>
+      </div>
+      <div class="cartao">
+        <div class="rotulo-pequeno">GRÁFICO 3</div>
+        <h3>Desempenho por categoria</h3>
+        <div class="caixa-grafico"><canvas id="grafico-categorias"></canvas></div>
+      </div>
+    </div>
+    <div class="cartao">
+      <div class="rotulo-pequeno">GRÁFICO 2</div>
+      <h3>Tempo por questão (segundos)</h3>
+      <div class="caixa-grafico"><canvas id="grafico-tempo"></canvas></div>
+      <p class="texto-pequeno">Barras azuis = acertos • barras vermelhas = erros.</p>
+    </div>
+    <p class="aviso-graficos escondido" id="aviso-graficos">Os gráficos precisam de internet para carregar a biblioteca Chart.js. Os números acima continuam corretos.</p>
+
+    <!-- Revisão -->
+    <div class="cartao">
+      <div class="rotulo-pequeno">GABARITO COMENTADO</div>
+      <h3>Revisão da avaliação</h3>
+      <p class="texto-pequeno">Clique em uma questão para ver os detalhes.</p>
+      <div class="lista-revisao" id="lista-revisao"></div>
+    </div>
+
+    <p class="aviso-final">Esta é uma avaliação cognitiva com fins educacionais e de autoconhecimento. O aproveitamento não é um diagnóstico psicológico e o teste não é equivalente a instrumentos padronizados.</p>
+  </main>
+
+  <!-- ===================================================== -->
+  <!-- JANELA DE IMAGEM AMPLIADA                              -->
+  <!-- ===================================================== -->
+  <div class="modal-zoom escondido" id="modal-zoom">
+    <div class="modal-conteudo">
+      <button type="button" class="fechar-zoom" id="fechar-zoom" aria-label="Fechar imagem ampliada">✕</button>
+      <img id="imagem-ampliada" src="" alt="Imagem ampliada">
+    </div>
+  </div>
+
+  <!-- ===================================================== -->
+  <!-- RODAPÉ COM INSTAGRAM E WHATSAPP                        -->
+  <!-- (os links são configurados no início do script.js)     -->
+  <!-- ===================================================== -->
+  <footer class="rodape" id="rodape">
+    <div class="rodape-conteudo">
+      <div><strong>NeuroMetric</strong> • Cognitive Lab — protótipo acadêmico</div>
+      <div class="redes-sociais">
+        <a href="#" id="link-instagram" class="rede instagram" target="_blank" rel="noopener noreferrer" aria-label="Abrir o Instagram do NeuroMetric" title="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"></rect><circle cx="12" cy="12" r="4.2"></circle><circle cx="17.6" cy="6.4" r="1" fill="currentColor" stroke="none"></circle></svg>
+        </a>
+        <a href="#" id="link-whatsapp" class="rede whatsapp" target="_blank" rel="noopener noreferrer" aria-label="Conversar com o NeuroMetric no WhatsApp" title="WhatsApp">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 004.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91A9.86 9.86 0 0012.04 2zm0 18.15h-.01a8.2 8.2 0 01-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.23 8.23 0 01-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24a8.24 8.24 0 018.24 8.25c0 4.54-3.7 8.23-8.24 8.23zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.13-.15.17-.25.25-.42.08-.17.04-.31-.02-.43-.06-.13-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48a.92.92 0 00-.66.31c-.23.25-.87.85-.87 2.07s.89 2.4 1.01 2.56c.12.17 1.75 2.67 4.24 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.29z"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
