@@ -1118,3 +1118,26 @@ document.addEventListener("keydown", function (evento) {
 });
 
 configurarRedesSociais();
+
+
+/* ---------------------------------------------------------
+   22. IMAGENS NA PASTA OU SOLTAS
+   No computador as imagens ficam em "imagens/...". Se o site
+   for publicado com as imagens soltas (na mesma pasta do
+   index.html), esta função tenta de novo só com o nome do arquivo.
+   --------------------------------------------------------- */
+function tentarImagemSolta(img) {
+  const caminho = img.getAttribute("src") || "";
+  if (caminho.indexOf("imagens/") === -1) return; // já é o nome solto: não tenta de novo
+  img.src = caminho.split("/").pop(); // ex.: "imagens/imagens_das_alternativas/Q7_A.png" -> "Q7_A.png"
+}
+
+// Vale para todas as imagens criadas durante o teste
+document.addEventListener("error", function (evento) {
+  if (evento.target.tagName === "IMG") tentarImagemSolta(evento.target);
+}, true);
+
+// O logo carrega antes deste arquivo, então é verificado aqui
+document.querySelectorAll("img").forEach(function (img) {
+  if (img.complete && img.naturalWidth === 0 && img.getAttribute("src")) tentarImagemSolta(img);
+});
