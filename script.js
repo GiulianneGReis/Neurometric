@@ -27,12 +27,12 @@ const CONFIG_QI = {
   penalidadeErro: 0.25,   // cada erro desconta 1/4 de ponto (correção de "chute" com 5 alternativas)
 
   // Grupo de referência: média e desvio-padrão do percentual de pontos.
-  // VALORES PROVISÓRIOS! Troque pelos dados reais depois de aplicar o teste em várias pessoas.
-  mediaReferencia: 55,    // percentual médio de pontos do grupo
-  desvioReferencia: 18,   // desvio-padrão do percentual de pontos do grupo
+  // Calibrado em 26/10/2026 com 22 participantes (primeiras tentativas).
+  mediaReferencia: 56.4,  // percentual médio de pontos do grupo
+  desvioReferencia: 17.2, // desvio-padrão do percentual de pontos do grupo
 
-  qiMinimo: 55,           // limites para não mostrar valores absurdos
-  qiMaximo: 145
+  qiMinimo: 55,           // menor QI exibido
+  qiMaximo: 150           // QI de quem faz 100% dos pontos (máximo possível)
 };
 
 
@@ -821,8 +821,10 @@ function calcularResultados() {
    Passo 2 — percentual de pontos:
        percentual = soma dos pontos ÷ pontos máximos × 100
        (pontos máximos = 34 × 1,20 = 40,8)
-   Passo 3 — converter para a escala de QI (média 100, desvio 15):
-       QI = 100 + 15 × (percentual − média do grupo) ÷ desvio do grupo
+   Passo 3 — converter para a escala de QI (média do grupo = 100):
+       abaixo da média:  QI = 100 + 15 × (percentual − média) ÷ desvio
+       acima da média:   QI = 100 + 50 × (percentual − média) ÷ (100 − média)
+       (assim, 100% dos pontos dá exatamente o QI máximo, 150)
    --------------------------------------------------------- */
 function calcularQI() {
   let pontos = 0;
@@ -839,7 +841,15 @@ function calcularQI() {
   const pontosMaximos = TOTAL * (1 + CONFIG_QI.bonusMaximo);
   const percentual = Math.max(0, (pontos / pontosMaximos) * 100);
 
-  let qi = 100 + 15 * (percentual - CONFIG_QI.mediaReferencia) / CONFIG_QI.desvioReferencia;
+  const media = CONFIG_QI.mediaReferencia;
+  let qi;
+  if (percentual >= media) {
+    // Acima da média: vai de 100 (na média) até o máximo (com 100% dos pontos)
+    qi = 100 + (CONFIG_QI.qiMaximo - 100) * (percentual - media) / (100 - media);
+  } else {
+    // Abaixo da média: escala tradicional de QI (15 pontos por desvio-padrão)
+    qi = 100 + 15 * (percentual - media) / CONFIG_QI.desvioReferencia;
+  }
   qi = Math.round(Math.min(CONFIG_QI.qiMaximo, Math.max(CONFIG_QI.qiMinimo, qi)));
 
   return { qi: qi, pontos: pontos, pontosMaximos: pontosMaximos, percentual: percentual };

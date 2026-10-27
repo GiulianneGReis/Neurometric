@@ -126,9 +126,11 @@ A função `calcularQI()` transforma o desempenho em um número na escala de QI 
    - acertou: `1 + 0,20 × (1 − tempo ÷ 60)` → vale de 1,00 (60 s ou mais) até 1,20 (resposta instantânea);
    - errou: `−0,25` (desconto de "chute", já que há 5 alternativas).
 2. **Percentual de pontos**: `soma dos pontos ÷ 40,8 × 100` (40,8 = 34 × 1,20, o máximo possível).
-3. **QI estimado**: `100 + 15 × (percentual − média do grupo) ÷ desvio do grupo`, limitado entre 55 e 145.
+3. **QI estimado** (média do grupo = 100):
+   - abaixo da média: `100 + 15 × (percentual − média) ÷ desvio`, com mínimo de 55;
+   - acima da média: `100 + 50 × (percentual − média) ÷ (100 − média)`, de modo que 100% dos pontos dá o máximo, **150**.
 
-A média (55) e o desvio (18) do grupo ficam em `CONFIG_QI`, no início do `script.js`, e são **provisórios**. Para calibrar: aplique o teste em várias pessoas (de preferência 30 ou mais), anote o percentual de pontos de cada uma (aparece no cartão "QI estimado") e calcule a média e o desvio-padrão desses valores (no Excel: `=MÉDIA(...)` e `=DESVPAD(...)`). Depois troque os dois números no `CONFIG_QI`.
+A média (56,4%) e o desvio (17,2%) ficam em `CONFIG_QI`, no início do `script.js`. Foram calibrados em 26/10/2026 com 22 participantes (primeiras tentativas; tentativas repetidas ou com média abaixo de 12 s por questão ficaram de fora). Para calibrar: aplique o teste em várias pessoas (de preferência 30 ou mais), anote o percentual de pontos de cada uma (aparece no cartão "QI estimado") e calcule a média e o desvio-padrão desses valores (no Excel: `=MÉDIA(...)` e `=DESVPAD(...)`). Depois troque os dois números no `CONFIG_QI`.
 
 > Mesmo calibrado, é uma estimativa educacional. Não equivale a um teste de QI aplicado por psicólogo.
 
